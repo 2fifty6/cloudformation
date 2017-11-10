@@ -3,9 +3,12 @@ Parameters:
   ProjectName:
     Type: String
     Default: ubuntu-stack
-  StaticWebContent:
+  AMI:
     Type: String
-    Default: '<html><body><h1>Hello world!</h1></body></html>'
+    AllowedPattern: ^ami-[a-f0-9]{8}$
+  InstanceType:
+    Type: String
+    Default: t2.micro
   VpcCidrParameter:
     Type: String
     Default: 10.0.0.0/16
@@ -809,20 +812,12 @@ Resources:
   UbuntuLC:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
     Properties:
-      InstanceType: t2.micro
-      ImageId: ami-d15a75c7
+      InstanceType: InstanceType
+      ImageId: AMI
       SecurityGroups:
         - !Ref InstanceSg
       IamInstanceProfile:
         Ref: InstanceProfile
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -x
-          apt-get -y update
-          apt-get -y install nginx
-          rm /var/www/html/*
-          echo "${StaticWebContent}" > /var/www/html/index.html
-          service nginx restart
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 25c1ff6b-9715-4be2-aa18-52848becf2ff
